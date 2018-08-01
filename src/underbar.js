@@ -101,8 +101,9 @@
     var result = [];
     _.each(array, function(elem){
       if (iterator){
-        output.push(iterator(elem)); //[true, false, false, false, false, false]
-        if(_.indexOf(output, iterator(elem)) === -1){
+        // result.push(iterator(elem)); //[true, false, false, false, false, false]
+        if(_.indexOf(result, iterator(elem)) === -1){
+        result.push(iterator(elem)); //[true, false]
         output.push(elem);
       }  
         } else { if(_.indexOf(output, elem) === -1){
@@ -119,6 +120,11 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+   var output = [];
+   _.each(collection, function(elem){
+     output.push(iterator(elem));
+   })
+   return output;
   };
 
   /*
@@ -160,6 +166,15 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    if(accumulator === undefined){
+      accumulator = collection[0];
+      collection = collection.slice(1);
+    } 
+    _.each(collection, function(elem, index){
+      accumulator = iterator(accumulator, elem, index);
+    
+    })
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -178,12 +193,26 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    return _.reduce(collection, function(accumulator, elem) {
+      if(iterator !== undefined){
+        return accumulator && !!iterator(elem);
+      } else {
+          return accumulator && elem;
+      }
+    }, true)
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+  return _.reduce(collection, function(accumulator, elem) {
+      if(iterator !== undefined){
+        return accumulator || !!iterator(elem);
+      } else {
+          return accumulator || elem;
+      }
+    }, false)
   };
 
 
@@ -206,12 +235,30 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    for(var i = 1; i < arguments.length; i++){
+
+      for(var key in arguments[i]){
+        obj[key] = arguments[i][key];
+      }
+     }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for(var i = 1; i < arguments.length; i++){
+
+      for(var key in arguments[i]){
+      if(obj[key] === undefined){
+        obj[key] = arguments[i][key];
+      }
+      }
+      }
+     
+    return obj;
   };
+  
 
 
   /**
@@ -254,6 +301,17 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+     var cache = {};
+    var result;
+    return function(){
+      var args = JSON.stringify(arguments);
+      if (cache[args]) {
+       return cache[args];    
+      } else {
+        cache[args] = func.apply(this, arguments);
+        return cache[args];
+      } 
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -263,6 +321,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var arg = Array.prototype.slice.call(arguments, 2);
+    setTimeout(function() {
+      return func.apply(this, arg);
+    }, wait);
   };
 
 
@@ -277,6 +339,15 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var arr = array.slice();
+    for (var i = 0; i < arr.length; i++) {
+      var index = Math.floor(Math.random() * array.length);  
+      //if (arr[])
+      var tmp = arr[i];
+      arr[i] = arr[index];
+      arr[index] = tmp;
+    }
+    return arr;
   };
 
 
