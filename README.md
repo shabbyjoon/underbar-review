@@ -1,2 +1,5 @@
-# underbar-review
-This is a project I completed as a student at [hackreactor](http://hackreactor.com). This project was worked on with a pair.
+# underlib
+
+## Description
+
+Underlib is a functional programming helper library, with common helper functions like invoke, reduce, map, pluck etc.
